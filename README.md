@@ -40,7 +40,58 @@
 <details>
   <summary>Terminologies</summary>
 
-- **Clickhouse Data Types**
+- **[Common Table Expression(CTE)](https://www.atlassian.com/data/sql/using-common-table-expressions)** 
+    - It is also known as sub-query factoring or with clause.
+    - Example table : employeeID, employeeName, Salary
+
+    ```
+        SELECT * FROM employeedb;
+
+        -- Fetch employees who earn more than average salary of all employees 
+        -- Option 1
+        -- use average_salary as alias 
+        -- list column inside the alias. In this case, avg_salary
+        with average_salary (avg_salary) as 
+           (
+            select cast (avg(salary) as int) from emloyeedb
+           )
+        select * 
+        from employeedb edb, average_salary av
+        where edb.salary > av.avg_sal;  -- There is no table col with average_salary and you need to create a new query for it. Instead, you could use with clause.
+    ```
+
+    ```
+        table colums: store_id, store_name, product, quantity, cost
+        select * from sales;
+        -- MAIN QUERY: Find stores whose sales are better than average sales across all stores
+        -- 1. Find total sales per each store - total_sales
+            select s.store_id, sum(cost) as total_sales_per_store
+            from sales s
+            group by s.store_id;
+        -- 2. Find average sales with respect to all the stores avg_sales 
+        -- We need to reuse the 
+        -- 3. Find the stores where total_sales > avg_sales of all stores
+    - Another example
+        ```
+            select
+                avg(price)
+            from uk_price_paid
+            where town = my_town;
+
+            with most_expensive as (
+                select * from uk_price_paid
+                order by price desc
+                limit 10
+            )
+            select
+                avg(price)
+            from most_expensive;
+        
+        ```
+
+
+    ```
+- **Data Types**
     - <ins> Integer types:</ins> signed and unsigned integers (UInt8, UInt16, UInt32, UInt64, UInt128, UInt256, Int8, Int16, Int32, Int64, Int128, Int256)
     - <ins> Floating-point numbers:</ins> floats(Float32 and Float64) and Decimal values
     - <ins> Boolean:</ins> ClickHouse has a Boolean type
@@ -58,7 +109,7 @@
     - <ins> IP addresses:</ins> use IPv4 and IPv6 to efficiently store IP addresses
     - <ins> Geo types:</ins> for geographical data, including Point, Ring, Polygon and MultiPolygon
     - <ins> Special data types:</ins> including Expression, Set, Nothing and Interval
-- **Interesting Datatypes**
+- **Datatypes (Interesting)**
     - ***Arrays*** - e.g use function ids Array(UInt32) or use square brackets [ ] 
     - ***[Nullable](https://clickhouse.com/docs/en/sql-reference/data-types/nullable)*** - It is not recommended to use Nullable unless you have to for your use case. 
         - If metric is not Nullable, the value would be 0.
@@ -88,8 +139,59 @@
         - <ins>default</ins> : Initially empty, it will contain tables that are created witout specifying a database
         - <ins>system</ins> : Contains over 60 system tables that maintain all sorts of details and metadata about your clickhouse deployment
         - <ins>INFORMATION_SCHEMA</ins> : Named after an ANSI standard, this database contains metadata about columns, tables, schemas and views (which are alraedy found in the system database)
+- **Data Ingestion**
+    - To get data in, there are various ways to insert data into clickhouse
+    - Ways to ingest data into ClickHouse
+        - upload CSV file
+        - ClickPipes - currently works for Kafka
+            - Kafka is a recommended way.
+        - Clickhouse-client and clickhouse-local
+        - Messaging service - Kafka, RabbitMQ, SQS, etc.
+        - Integration service - Airbute, dbt, Vector, etc.
+        - Migrate from another database
+        - Client application - Java, Go, Python, etc.
+    - Questions to ask when doing data ingestion
+        - Where is your data now?
+        - What format is your data in? input format to read 
+    - Data location
+        - Cloud => AWS S3, GCP gcs function, Azure blob - There are table functions for each cloud provider and they provide a table-like interface to files
+        - Databases => PostgreSQL, MySQL, MongoDB, SQLite, Any other db ODBC, JDBC => SELECT, INSERT 
+        - Open table format => iceberg, hudi, delta lake
+        - Services => Kakfa, RabbitMQ, Redis, Hadoop, NATS => Table Engine
+- **Data Ingestion Options**
+    - local file 
+        - `cat yourfile.csv | ./clickhouse client --query="INSERT INTO yourfile.calculate_average FORMAT CSV"`
+    - ETL tools - 
+    - Kafka, etc.
+- **Functions**
+    - There are different functions categories:
+        - [**regular functions**](https://clickhouse.com/docs/en/sql-reference/functions) -> functions --> they apply to each row separately. Regular functions work as if they are applied to each row separately (for each row, the result of the function does not depend on the other rows)
+        - `select lower(town) from uk_price_paid`
+        - `select count() from system_functions;`
+        - [**aggregate functions**](https://clickhouse.com/docs/en/sql-reference/aggregate-functions) - computation is made based on the values of multiple rows. Aggregate functions accumulate a set of values from various rows (i.e. they depend on the entire set of rows).
+            - Aggregate functions work in the normal way as expected by database experts.
+            - ClickHouse also supports:
+              - Parametric aggregate functions, which accept other parameters in addition to columns.
+              - Combinators, which change the behavior of aggregate functions.
+            - The list of aggregate functions can be found in this link, https://clickhouse.com/docs/en/sql-reference/aggregate-functions/reference.
+            - count, min/max, sum, avg, median, quantile/quantiles - and their variants, any - selects the first encountered value, uniqExact/uniqTheta/uniqHLL12/uniqCombined - (approximate) count of unique values of a column
+
+            - `select quantile(0.90)(price) from uk_price_paid`
+        - **table functions** --> [for creating table](Table functions are methods for constructing tables.)
+        - **[User defined functions](https://clickhouse.com/docs/en/sql-reference/functions/udf)** - Can use SQL based and they are based on lambda expression
+            `select arrayMap((x,y) -> lcm(x,y), [7, 10, 15], [9, 100, 120])`
+        
 - **[Granule](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree#mergetree-data-storage)** - It is a batch of rows of fixed size which addresses with the primary key. The default value is 8,192 rows per batch. 
     - A granule is the smallest indivisible data set that ClickHouse reads when selecting data. ClickHouse does not split rows or values, so each granule always contains an integer number of rows. The first row of a granule is marked with the value of the primary key for the row.
+- **[Input Format](https://clickhouse.com/docs/en/interfaces/formats)** 
+    - Clickhouse supports various types of data formats. Popular formats like:
+        - Protobuf
+        - Avro
+        - Parquet
+        - Arrow
+        - ORC
+        - CSV, TSV
+        - 20+ formats for JSON data 
 - **MergeTree Table** - tbadded
 - **Table Engine** : determins
     - How and where the table data is stored
@@ -171,6 +273,123 @@
         - [How Clickhouse primary key works and how to choose it](https://medium.com/datadenys/how-clickhouse-primary-key-works-and-how-to-choose-it-4aaf3bf4a8b9)
         - [A Practical Introduction to Primary Indexes in ClickHouse](https://clickhouse.com/docs/en/optimize/sparse-primary-indexes)
 
+- **String functions** - it is part of regular functions
+    - **[Manipulating strings](https://clickhouse.com/docs/en/sql-reference/functions/string-functions)** - lower, upper, trim, normalize, encode
+    
+    - **[Searching strings](https://clickhouse.com/docs/en/sql-reference/functions/string-search-functions)** - Looking for a needle or pattern in a haystack
+        - position(haystack, needle[, start_pos])
+
+        ```
+        -- How many streets in UK that contains 'King'
+        select
+            count()
+        from uk_price_paid
+        where 
+            position(street, 'KING') > 0;
+        ```
+    - Another example
+
+        ```
+        select 
+            count()
+        from uk_price_paid
+        where
+            multiFuzzyMatchAny(street, 1, ['KING']);
+        
+
+        -- Example
+            select distinct
+                street,
+                multiSearchAllPositionsCaseInsensitive(
+                    street,
+                    ['abbey', 'road']
+                ) as positions
+            from uk_price_paid
+            where not has (positions,0);
+        -- Example - want to know the most expensive in town, and which street it is located, https://clickhouse.com/docs/en/sql-reference/aggregate-functions/reference/argmax#:~:text=Calculates%20the%20arg%20value%20for,first%20of%20these%20values%20encountered.
+            select
+                town,
+                max(price),
+                -- instead of using subquery, you can use argMax function
+                argMax(street, price)
+            from uk_price_paid
+            group by town;
+
+
+        ```
+
+    - **[Searching and replacing in strings](https://clickhouse.com/docs/en/sql-reference/functions/string-replace-functions)** - Replacing a needle or pattern in a haystack
+
+- **[Table Function Example](https://clickhouse.com/docs/en/sql-reference/table-functions)**
+    - Table functions typically require:
+        - URL or path
+        - Credentials
+        - data format
+        - schema
+    - Cloud example
+    ```
+        SELECT timestamp, message
+        FROM s3(
+            'https://s3.ap-southeast-2.com/data.helloworld{1..3}.csv', --files 1,2,3
+            aws_access_key_id,
+            aws_secret_access_key,
+            'CSV', --data format
+            'timestamp UInt64, level String, message String' --data schema inference 
+        )
+    ```
+    - PostgreSQL
+        - The database table functions typically require:
+            - hostname
+            - database name
+            - table name
+            - credentials
+    ```
+        SELECT * 
+        FROM postgresql(
+            'postgre_server:5432', --hostname
+            'postgre_database', -- db name
+            'postgre_table', -- table name
+            'user', --credentials
+            'password'
+        );
+    ```
+    - JSON data from Kafka topic
+        - Use the Kafka table engine
+        - Use clickpipes if you are using clickhouse cloud
+    ```
+        CREATE TABLE my_table (
+            timestamp UInt64,
+            level String,
+            message String
+        )
+        ENGINE = Kafka
+        SETTINGS    kafka_broker_list = 'localhost:9092',
+                    kafka_topic_list = 'my_topic'
+                    kafka_group_name = 'group1', 
+                    kafka_format = 'JSONEachRow',
+                    kafka_num_consumers = '4';
+    ```
+- **Table functions vs Table Engines**
+|Table functions|Table Engines|
+|---|---|
+|Allow you construct tables from various sources|Some table engine proxy queries to external sources (similar to how the functions work), but looks like a "normal table"|
+
+- Table engines acts as proxies to the external resource, -- behind the scene, it will stream the data from S3. 
+    - Streaming data is slow. Therefore, it is not practical to be used in everyday queries. Only for ad-hoc query.
+    ```
+        CREATE TABLE my_s3_table(
+            message String,
+            timestamp UInt64
+        )
+        ENGINE=s3( 
+            'https://.../my_bucket/my-file.csv.gz',
+            aws_access_key_id,
+            aws_secret_access_key,
+            'CSV',
+            'gzip'
+        )
+    ```
+
 ## SQL and other fundamentals concepts for ClickHouse
 
 - Cardinality
@@ -181,3 +400,6 @@
 - UnsignedInt vs SignedInt
 
 </details>
+
+### Other Useful resources
+- SQL tutorial, http://www.sql-tutorial.com/
