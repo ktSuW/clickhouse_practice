@@ -175,11 +175,36 @@
               - Combinators, which change the behavior of aggregate functions.
             - The list of aggregate functions can be found in this link, https://clickhouse.com/docs/en/sql-reference/aggregate-functions/reference.
             - count, min/max, sum, avg, median, quantile/quantiles - and their variants, any - selects the first encountered value, uniqExact/uniqTheta/uniqHLL12/uniqCombined - (approximate) count of unique values of a column
+            - Another groups - statistics
+                - varPop/stddevPop/covarPop
+                - simpleLinearRegression
+                - stochasticLinearRegression/stochasticLogisticRegression
+                - corr (the Pearson correlation coefficient)/rankCorr
+                - topK/topKWeighted
+                - studentTTeset/welchTTest/meanZTest/mannWhitneyUTest, etc (behind the scene, they are C++ functions)
 
             - `select quantile(0.90)(price) from uk_price_paid`
+        - **[Aggregate function combinators](https://clickhouse.com/docs/en/sql-reference/aggregate-functions/combinators)** - Take any aggregate functions and append combinators to it
+            - The name of an aggregate function can have a suffix appended to it. This changes the way the aggregate function works.
+            - There are so many permutations
+            - Other combinators
+
+|Suffix|Description|
+|---|---|
+|Array|Allows the aggregate function to work with arrays|
+|Map|Allows for aggregate function to work with maps|
+|SimpleState|Returns a SimpleAggregate Function data type|
+|State|Returns an AggregateFunction data type|
+|Merge|Merges the intermediate state with the final state of the aggregation|
+|MergeState|Similar to Merge, but returns an AggregateFunction type(instead of the result)|
+|ForEach|Aggregates over arrays of values|
+|OrDefault/OrNull|If there is no input, the default value of the data type is returned(or null)|
+|Resample|Lets you divide data into groups and aggregate over the smaller groups|
+
         - **table functions** --> [for creating table](Table functions are methods for constructing tables.)
         - **[User defined functions](https://clickhouse.com/docs/en/sql-reference/functions/udf)** - Can use SQL based and they are based on lambda expression
             `select arrayMap((x,y) -> lcm(x,y), [7, 10, 15], [9, 100, 120])`
+        
         
 - **[Granule](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree#mergetree-data-storage)** - It is a batch of rows of fixed size which addresses with the primary key. The default value is 8,192 rows per batch. 
     - A granule is the smallest indivisible data set that ClickHouse reads when selecting data. ClickHouse does not split rows or values, so each granule always contains an integer number of rows. The first row of a granule is marked with the value of the primary key for the row.
@@ -192,6 +217,16 @@
         - ORC
         - CSV, TSV
         - 20+ formats for JSON data 
+- **Materialized View**
+    - What is view?
+        - The concept of views in ClickHouse is similar to views in other DBMSs.
+        - The contents of a view table are based on the results of a SELECT query
+    - What is a materialized view?
+        - A materialized view is a special trigger that stores the result of a SELECT query on data, as it is inserted, into a target table.
+        - There are many use cases. One of them is making certain queries work faster.
+        - Every materialized view must have a source table.
+    - Read this blog post from clickhouse, [Using Materialized Views in ClickHouse](https://clickhouse.com/blog/using-materialized-views-in-clickhouse)
+    - [Create views](https://clickhouse.com/docs/en/sql-reference/statements/create/view#materialized-view)
 - **MergeTree Table** - tbadded
 - **Table Engine** : determins
     - How and where the table data is stored
@@ -398,6 +433,7 @@
 - Partitioning
 - Primary Key 
 - UnsignedInt vs SignedInt
+- View
 
 </details>
 
