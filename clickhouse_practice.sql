@@ -1,3 +1,19 @@
+-- Create a view for terraced properties in UK
+-- This is the normal view, not a materialized view, it is not a table, but is saved as a query
+CREATE VIEW uk_terraced_property
+AS 
+    select *
+    from uk_price_paid
+    where type = 'terraced';
+
+-- This is what happended behind the scene
+select count() from (
+    select *
+    from uk_price_paid
+    where type = 'terraced'
+)
+
+--================================
 -- https://clickhouse.com/codebrowser/ClickHouse/src/Functions/formatReadableQuantity.cpp.html
 -- formatReadableQuantity(x) - Given a number, this function returns a rounded number with suffix (thousand, million, billion, etc.) as string.
 -- Prints each value on a separate line with the column name specified. This format is convenient for printing just one or a few rows if each row consists of a large number of columns.

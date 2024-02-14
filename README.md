@@ -217,16 +217,6 @@
         - ORC
         - CSV, TSV
         - 20+ formats for JSON data 
-- **Materialized View**
-    - What is view?
-        - The concept of views in ClickHouse is similar to views in other DBMSs.
-        - The contents of a view table are based on the results of a SELECT query
-    - What is a materialized view?
-        - A materialized view is a special trigger that stores the result of a SELECT query on data, as it is inserted, into a target table.
-        - There are many use cases. One of them is making certain queries work faster.
-        - Every materialized view must have a source table.
-    - Read this blog post from clickhouse, [Using Materialized Views in ClickHouse](https://clickhouse.com/blog/using-materialized-views-in-clickhouse)
-    - [Create views](https://clickhouse.com/docs/en/sql-reference/statements/create/view#materialized-view)
 - **MergeTree Table** - tbadded
 - **Table Engine** : determins
     - How and where the table data is stored
@@ -424,6 +414,77 @@
             'gzip'
         )
     ```
+
+- **View**
+    - **What is view?**
+        - The concept of views in ClickHouse is similar to views in other DBMSs.
+        - The contents of a view table are based on the results of a SELECT query
+
+    - **What is a materialized view?**
+        - A materialized view is a special trigger that stores the result of a SELECT query on data, as it is inserted, into a target table.
+        - There are many use cases. One of them is making certain queries work faster.
+        - Every materialized view must have a source table.
+        - When an INSERT happens to the source table of the SELECT query, the query is executed on newly-inserted rows and the result is inserted into the MV table.
+        - ![Materialised View](./img/mvview.png)
+        - Materialized view never goes back tot he source_table.
+        - Read this blog post from clickhouse, [Using Materialized Views in ClickHouse](https://clickhouse.com/blog/using-materialized-views-in-clickhouse)
+        - [Create views](https://clickhouse.com/docs/en/sql-reference/statements/create/view#materialized-view)
+
+    - **DO and DON'ts about Materialized View**
+        - Avoid using POPULATE, it creates a table behind the scene and the table name is random
+            - clickhouse implicityly create inner.{uuid}
+        - Use TO clause and Create your own MV table 
+    - **3 step process to define MV**
+        - Define the destination table
+        - Define the Materialized View using TO clause, not POPULATE - "to" the destination table
+        - Populate the destination table with historic data 
+
+        ```
+            -- STEP ONE - CREATE THE DESTINATION TABLE
+            -- ========================================
+            create table uk_price_by_town_dest (
+                price UInt32,
+                date Date,
+                street LowCardinality(String),
+                town LowCardinality(String),
+                district LowCardinality(String)
+            )
+            engine = MergeTree
+            order by town;
+
+            -- STEP TWO : DEFINE THE MATERIALIZED VIEW USING TO CLAUSE
+            -- =======================================================
+            create materialized view uk_price_by_town_view_dest
+            to uk_price_by_town_dest
+            as select
+                price,
+                date,
+                street,
+                town, 
+                district
+                from uk_price_paid
+                where date >= toDate('2024-02-14');
+            
+            -- STEP THREE : - Populate the destination table with historic data 
+            --=================================================================
+            insert into uk_price_by_town_dest
+                select
+                price,
+                date,
+                street,
+                town, 
+                district
+                from uk_price_paid
+                where date <= toDate('2024-02-14');
+            
+            -- STEP FOUR : Verify
+            --======================================
+        ```
+    - **When to use a normal view?**
+        - The results of the view change often - which are not great candidates for materialized views
+        - The results of the view are not used very often - relative to the rate at which the result change
+        - the query is NOT RESOURCE INTENSIVE, it is not expensive to run the query over and over again.
+        - NOTE : If your use case does not fit these above limited scenarios, consider defining a materialized view
 
 ## SQL and other fundamentals concepts for ClickHouse
 
