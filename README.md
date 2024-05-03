@@ -17,7 +17,8 @@
     - `clickhouse server`
     - `clickhouse client`
 - ClickHouse Keeper
-<details>
+
+</details>
 
 ---
 
