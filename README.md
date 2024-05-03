@@ -1,38 +1,23 @@
 # ClickHouse Studies
 
 
-## ClickHouse Fundamentals Labs
+## ClickHouse Fundamentals 
 
-### Module 1 - Introduction to ClickHouse
-- **Lab 2 & 3** 
- 
-        ```
-        -- Create crypto_prices table
-        CREATE TABLE crypto_prices 
-        (
-            trade_date Date,
-            crypto_name String,
-            volume Float32,
-            price Float32,
-            market_cap Float32,
-            change_1_day Float32
-        )
-        PRIMARY KEY (crypto_name, trade_date)
+<details>
+  <summary>1. Introduction</summary>
 
-        -- Verify the table
-        DESC crypto_prices;
-
-        -- Delete the table
-        DROP TABLE crypto_prices;
-
-        ```
-### Module 2 - Modeling Data
-### Module 3 - Inserting Data 
-### Module 4 - Analyzing Data
-### Module 5 - Views
-### Module 6 - Joining Data
-### Module 7 - Managing Data
-### Module 8 - Optimising ClickHouse
+# Basics
+- ClickHouse - ClickStream + Datawarehouse
+- What is OLAP?
+- Install ClickHouse
+    - [Quick install](https://clickhouse.com/docs/en/install)
+    - `curl https://clickhouse.com/ | sh` : Download Clickhouse locally
+        - OK for study, testing purpose. Not for prod.
+    - `./clickhouse` : Run the following command to start clickhouse-local
+    - `clickhouse server`
+    - `clickhouse client`
+- ClickHouse Keeper
+<details>
 
 ---
 
