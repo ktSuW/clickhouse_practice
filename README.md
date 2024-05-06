@@ -7,6 +7,8 @@
   <summary>1. Introduction</summary>
 
 # Basics
+
+## ClickHouse Install
 - ClickHouse - ClickStream + Datawarehouse
 - What is OLAP?
 - Install ClickHouse
@@ -14,9 +16,35 @@
     - `curl https://clickhouse.com/ | sh` : Download Clickhouse locally
         - OK for study, testing purpose. Not for prod.
     - `./clickhouse` : Run the following command to start clickhouse-local
-    - `clickhouse server`
-    - `clickhouse client`
-- ClickHouse Keeper
+    - `SHOW DATABASES;`
+
+    - `sudo clickhouse start` : Start clickhouse-server 
+    - `clickhouse-client --password` : Start clickhouse-client
+- ClickHouse Keeper - TBadded
+
+## [Docker Desktop installation in Windows](https://docs.docker.com/desktop/install/windows-install/)
+- Turn Windows features on or off
+    - [Hyper-V only for certain windows](https://www.ubackup.com/enterprise-backup/windows-11-hyper-v-not-showing.html#:~:text=Way%201.,-Enable%20Hyper%2DV&text=Launch%20Control%20Panel%2C%20open%20Turn,V%20features%20and%20click%20OK.) such as window 10/11 pro
+    - Windows Subsystem for Linux
+    - `wsl --version` - to find out the version
+    - `wsl --update`
+    - `wsl --set-default-version 1/2` - whichever version 1 or 2 you want
+    - `docker version` : show both Client and Server versions
+    - `docker images` : list images you have got
+- Clickhouse images
+    - `docker pull clickhouse/clickhouse-client` : clickhouse/clickhouse-client
+    - `clickhouse/clickhouse-server image` 
+    - `docker pull clickhouse/clickhouse-keeper` : [ClickHouse Keeper](https://hub.docker.com/r/clickhouse/clickhouse-keeper) (clickhouse-keeper), https://clickhouse.com/docs/en/guides/sre/keeper/clickhouse-keeper
+    - `docker pull clickhouse/upgrade-check`
+- ClickHouse 
+    - http://localhost:8123/play
+    - clickhouse client uses TCP interface to connect to the server
+    - Install Ubunto on VMWareWorkstation pro, https://www.youtube.com/watch?v=luhHDo4ei34&t=3s
+    - `sudo docker run hello-world`
+    - `sudo docker run -d --name clickhouse-for-course --ulimit nofile=262144:262144 clickhouse/clickhouse-server`
+    - `sudo docker container ls` or `docker container ls`
+    - `sudo docker exec -it d7 /bin/bash`
+
 
 </details>
 
