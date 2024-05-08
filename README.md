@@ -16,6 +16,12 @@
     - `./clickhouse` : Run the following command to start clickhouse-local
     - `clickhouse server`
     - `clickhouse client`
+    - `SHOW DATABASES;`
+
+- `sudo clickhouse start` : Start clickhouse-server 
+- `clickhouse-client --password` : Start clickhouse-client
+ 
+
 - ClickHouse Keeper
 
 </details>
