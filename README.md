@@ -521,19 +521,63 @@
 - UnsignedInt vs SignedInt
 - View
 
-- Sparse Index
-A sparse index is a type of database index in which index entries are not created for every single row in the table but rather at intervals. This makes the index file smaller and requires less memory, as only selected rows have corresponding index entries. In the context of ClickHouse (or similar databases), this means not every row is directly indexed, but rather chunks or blocks of rows are indexed.
 
-- Example: Imagine you have a book where, instead of listing every page number in the table of contents, you only list the page number at the start of each new chapter. If you're looking for something in Chapter 3, you don’t need to know the page number of every single page in that chapter; you just need to know where Chapter 3 starts and you can flip through the chapter to find what you need. Similarly, in a database with a sparse index, if you're looking for a specific row, the database knows which block of rows (granule) to access based on the sparse index and can then scan within that block to find the exact row.
-
-- Index Granularity
-Index granularity refers to the size or number of rows that make up each block or segment that is indexed in a sparse index system. It determines how much data is covered by each entry in the index. A smaller granularity means more entries in the index, leading to a potentially larger index but finer control over the data blocks accessed during queries. Conversely, a larger granularity reduces the size of the index but may increase the amount of data scanned during a query.
-
-- Example: Continuing with the book analogy, consider granularity as the number of pages per chapter. If each chapter (granule) is about 10 pages long, then your table of contents (sparse index) helps you jump directly to the start of the chapter containing the page you're interested in. In the context of the ClickHouse table you mentioned, every 8,192 rows form a granule. When a query is executed, ClickHouse uses the sparse index to quickly locate the granule containing the target rows and only scans those rows, rather than the entire dataset.
- - In summary, the sparse index and index granularity work together to efficiently locate and process data within large datasets by minimizing memory usage and reducing the amount of data scanned during queries. This is particularly beneficial in systems like ClickHouse that handle very large volumes of data.
 </details>
 
 ### Other Useful resources
 - SQL tutorial, http://www.sql-tutorial.com/
 
 
+<details>
+  <summary> Study Notes</summary>
+
+# 9 - 11 May 
+
+## - Sparse Index
+- A sparse index is a type of database index in which index entries are not created for every single row in the table but rather at intervals. This makes the index file smaller and requires less memory, as only selected rows have corresponding index entries. In the context of ClickHouse (or similar databases), this means not every row is directly indexed, but rather chunks or blocks of rows are indexed.
+
+- Example: Imagine you have a book where, instead of listing every page number in the table of contents, you only list the page number at the start of each new chapter. If you're looking for something in Chapter 3, you don’t need to know the page number of every single page in that chapter; you just need to know where Chapter 3 starts and you can flip through the chapter to find what you need. Similarly, in a database with a sparse index, if you're looking for a specific row, the database knows which block of rows (granule) to access based on the sparse index and can then scan within that block to find the exact row.
+
+- **Index Granularity**
+- Index granularity refers to the size or number of rows that make up each block or segment that is indexed in a sparse index system. It determines how much data is covered by each entry in the index. A smaller granularity means more entries in the index, leading to a potentially larger index but finer control over the data blocks accessed during queries. Conversely, a larger granularity reduces the size of the index but may increase the amount of data scanned during a query.
+
+- Example: Continuing with the book analogy, consider granularity as the number of pages per chapter. If each chapter (granule) is about 10 pages long, then your table of contents (sparse index) helps you jump directly to the start of the chapter containing the page you're interested in. In the context of the ClickHouse table, every 8,192 rows form a granule. When a query is executed, ClickHouse uses the sparse index to quickly locate the granule containing the target rows and only scans those rows, rather than the entire dataset.
+ - In summary, the sparse index and index granularity work together to efficiently locate and process data within large datasets by minimizing memory usage and reducing the amount of data scanned during queries. This is particularly beneficial in systems like ClickHouse that handle very large volumes of data.
+- `sudo docker run hello-world` - Test whether docker engine is installed correctly
+- `sudo docker run -d --name clickhouse-su1 --ulimit nofile=262144:262144 clickhouse/clickhouse-server:latest`
+    - Create and start a dcoker container called clickhouse-su1 from clickhouse-server image
+    - `docker run` : Create a new container and run it
+    - `-d` : detaches the container and runs it in the background
+    - `--name clickhouse-su1` : assign a custom name to the container
+    - `ulimit` : sets the `ulimit`for the maximumnumber of open files that the container can use
+
+- `sudo docker stop <container-name1> <container-name2>`
+- `sudo docker rm <container-name1>`
+- `sudo docker container ls -a`
+- `sudo docker exec -it a56 /bin/bash`
+    - `docker exec` : execute a new command in a running container
+    - `it `: i interfactive flag- keep the session open to received an input from the user. It makes the execution interactive
+    - `t or -tty` : allocates pseudo TTY, which provides a text-based interface that allows the user to interact with the new process
+    - `a56` - first three char of your container name
+    - `/bin/bash` : This is the command executed inside the container. It starts the bash shell and allows you to interact with the container's linux environment directly
+    - You are now inside clickhouse server. And connect to clickhouse client (which is already available in the clickhouse server image, so you don't need to run another container)
+- `clickhouse-client`
+- `SHOW DATABASES;`
+
+## Connecting to a ClickHouse server
+- ClickHouse via HTTP/8123 or TCP/9000
+- `http://localhost:8123/play` : web UI connect to clickhouse server
+- `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --multiline`
+  - you can either escape with \ or use --multiline flag
+- `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --query "SHOW TABLES FROM system;"
+- Common parameters
+ - --host
+ - --port
+ - --user
+ - --password
+ - --query
+ - --multiquery
+ - --multiline
+ - --database
+ - --format
+ - --secure vis SSL/TLS
