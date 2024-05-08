@@ -1,3 +1,19 @@
+
+-- Create a new database
+CREATE DATABASE IF NOT EXISTS helloworld
+
+-- Create table
+-- Primary key in ClickHouse is not unique for each row in a table.
+CREATE TABLE helloworld.my_first_table
+(
+    user_id UInt32
+    message String 
+    timestamp DateTime
+    metric Float32 
+)
+ENGINE = MergeTree()
+PRIMARY KEY = (user_id, timestamp)
+--=====================================
 -- Create a view for terraced properties in UK
 -- This is the normal view, not a materialized view, it is not a table, but is saved as a query
 CREATE VIEW uk_terraced_property

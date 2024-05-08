@@ -7,6 +7,8 @@
   <summary>1. Introduction</summary>
 
 # Basics
+
+## ClickHouse Install
 - ClickHouse - ClickStream + Datawarehouse
 - What is OLAP?
 - Install ClickHouse
@@ -23,6 +25,35 @@
  
 
 - ClickHouse Keeper
+    - `SHOW DATABASES;`
+
+    - `sudo clickhouse start` : Start clickhouse-server 
+    - `clickhouse-client --password` : Start clickhouse-client
+- ClickHouse Keeper - TBadded
+
+## [Docker Desktop installation in Windows](https://docs.docker.com/desktop/install/windows-install/)
+- Turn Windows features on or off
+    - [Hyper-V only for certain windows](https://www.ubackup.com/enterprise-backup/windows-11-hyper-v-not-showing.html#:~:text=Way%201.,-Enable%20Hyper%2DV&text=Launch%20Control%20Panel%2C%20open%20Turn,V%20features%20and%20click%20OK.) such as window 10/11 pro
+    - Windows Subsystem for Linux
+    - `wsl --version` - to find out the version
+    - `wsl --update`
+    - `wsl --set-default-version 1/2` - whichever version 1 or 2 you want
+    - `docker version` : show both Client and Server versions
+    - `docker images` : list images you have got
+- Clickhouse images
+    - `docker pull clickhouse/clickhouse-client` : clickhouse/clickhouse-client
+    - `clickhouse/clickhouse-server image` 
+    - `docker pull clickhouse/clickhouse-keeper` : [ClickHouse Keeper](https://hub.docker.com/r/clickhouse/clickhouse-keeper) (clickhouse-keeper), https://clickhouse.com/docs/en/guides/sre/keeper/clickhouse-keeper
+    - `docker pull clickhouse/upgrade-check`
+- ClickHouse 
+    - http://localhost:8123/play
+    - clickhouse client uses TCP interface to connect to the server
+    - Install Ubunto on VMWareWorkstation pro, https://www.youtube.com/watch?v=luhHDo4ei34&t=3s
+    - `sudo docker run hello-world`
+    - `sudo docker run -d --name clickhouse-for-course --ulimit nofile=262144:262144 clickhouse/clickhouse-server`
+    - `sudo docker container ls` or `docker container ls`
+    - `sudo docker exec -it d7 /bin/bash`
+
 
 </details>
 
@@ -472,6 +503,8 @@
             -- STEP FOUR : Verify
             --======================================
         ```
+        - References:
+            - [ClickHouse materialized view](https://medium.com/@dengqs402/clickhouse-materialized-view-4e7298a24c93)
     - **When to use a normal view?**
         - The results of the view change often - which are not great candidates for materialized views
         - The results of the view are not used very often - relative to the rate at which the result change
@@ -488,7 +521,19 @@
 - UnsignedInt vs SignedInt
 - View
 
+- Sparse Index
+A sparse index is a type of database index in which index entries are not created for every single row in the table but rather at intervals. This makes the index file smaller and requires less memory, as only selected rows have corresponding index entries. In the context of ClickHouse (or similar databases), this means not every row is directly indexed, but rather chunks or blocks of rows are indexed.
+
+- Example: Imagine you have a book where, instead of listing every page number in the table of contents, you only list the page number at the start of each new chapter. If you're looking for something in Chapter 3, you don’t need to know the page number of every single page in that chapter; you just need to know where Chapter 3 starts and you can flip through the chapter to find what you need. Similarly, in a database with a sparse index, if you're looking for a specific row, the database knows which block of rows (granule) to access based on the sparse index and can then scan within that block to find the exact row.
+
+- Index Granularity
+Index granularity refers to the size or number of rows that make up each block or segment that is indexed in a sparse index system. It determines how much data is covered by each entry in the index. A smaller granularity means more entries in the index, leading to a potentially larger index but finer control over the data blocks accessed during queries. Conversely, a larger granularity reduces the size of the index but may increase the amount of data scanned during a query.
+
+- Example: Continuing with the book analogy, consider granularity as the number of pages per chapter. If each chapter (granule) is about 10 pages long, then your table of contents (sparse index) helps you jump directly to the start of the chapter containing the page you're interested in. In the context of the ClickHouse table you mentioned, every 8,192 rows form a granule. When a query is executed, ClickHouse uses the sparse index to quickly locate the granule containing the target rows and only scans those rows, rather than the entire dataset.
+ - In summary, the sparse index and index granularity work together to efficiently locate and process data within large datasets by minimizing memory usage and reducing the amount of data scanned during queries. This is particularly beneficial in systems like ClickHouse that handle very large volumes of data.
 </details>
 
 ### Other Useful resources
 - SQL tutorial, http://www.sql-tutorial.com/
+
+
