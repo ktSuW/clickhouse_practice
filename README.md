@@ -533,7 +533,9 @@
 
 # 9 - 11 May 
 
-## - Sparse Index
+## Wed 7 May 
+
+- Sparse Index
 - A sparse index is a type of database index in which index entries are not created for every single row in the table but rather at intervals. This makes the index file smaller and requires less memory, as only selected rows have corresponding index entries. In the context of ClickHouse (or similar databases), this means not every row is directly indexed, but rather chunks or blocks of rows are indexed.
 
 - Example: Imagine you have a book where, instead of listing every page number in the table of contents, you only list the page number at the start of each new chapter. If you're looking for something in Chapter 3, you don’t need to know the page number of every single page in that chapter; you just need to know where Chapter 3 starts and you can flip through the chapter to find what you need. Similarly, in a database with a sparse index, if you're looking for a specific row, the database knows which block of rows (granule) to access based on the sparse index and can then scan within that block to find the exact row.
@@ -571,13 +573,58 @@
   - you can either escape with \ or use --multiline flag
 - `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --query "SHOW TABLES FROM system;"
 - Common parameters
- - --host
- - --port
- - --user
- - --password
- - --query
- - --multiquery
- - --multiline
- - --database
- - --format
- - --secure vis SSL/TLS
+    - --host
+    - --port
+    - --user
+    - --password
+    - --query
+    - --multiquery
+    - --multiline
+    - --database
+    - --format
+    - --secure vis SSL/TLS
+
+# Fri 10 May 24
+
+- Download DBeaver,https://dbeaver.io/download/
+- `sudo dpkg -i dbeaver-ce.deb` : 
+    - debian package manager tool
+    - i install 
+    - Dbeaver => Database => Clickhouse => Download some drivers, enter username and password 
+    - Database --> New Db connection --> New script. enter username and password
+    - `SHOW DATABASES;`
+- Load example dataset - Geo Data using the Cell Tower Dataset, 40 millions rows of data
+  - Links:
+    - https://www.opencellid.org/#zoom=16&lat=37.77889&lon=-122.41942
+    - https://clickhouse.com/docs/en/getting-started/example-datasets/cell-towers
+    - Get the download link under self-managed, https://datasets.clickhouse.com/cell_towers.csv.xz
+  - `wget https://datasets.clickhouse.com/cell_towers.csv.xz`
+    - `clickhouse-client --host 127.0.0.1 --port 9000 --user yourusername --password yourpassword --multiline`
+    - `create DATABASE opencellid;`
+    - create cell_towers table, Step 4. from https://clickhouse.com/docs/en/getting-started/example-datasets/cell-towers
+    ```
+        CREATE TABLE opencellid.cell_towers
+        (
+            radio Enum8('' = 0, 'CDMA' = 1, 'GSM' = 2, 'LTE' = 3, 'NR' = 4, 'UMTS' = 5),
+            mcc UInt16,
+            net UInt16,
+            area UInt16,
+            cell UInt64,
+            unit Int16,
+            lon Float64,
+            lat Float64,
+            range UInt32,
+            samples UInt32,
+            changeable UInt8,
+            created DateTime,
+            updated DateTime,
+            averageSignal UInt8
+        )
+        ENGINE = MergeTree ORDER BY (radio, mcc, net, created);
+    ```
+    - Insert the data into the table
+        - `clickhouse-client --password --query "INSERT INTO cell_towers FORMAT CSVWithNames" < cell_towers.csv`
+        - `select count(*) from opencellid.cell_towers;`
+        - `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --multiline`
+    - Bulk insert
+    - MergeTree Engine
