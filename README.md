@@ -628,3 +628,69 @@
         - `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --multiline`
     - Bulk insert
     - MergeTree Engine
+---
+
+# Sat 11 May 24 
+
+- `select * from system.functions where name='sum'`
+- Clickhouse SQL
+    - Data Definition Language - DDL
+    - Data Query Lanugage - DQL
+    - Data Manipulation language - DML
+    - Data Control language - DCL
+
+- ClickHouse SQL - DDL
+    - CREATE - create a database, table, users and viewers
+    - RENAME - Rename a table, database or dictionary
+    - Truncate 
+    - DROP - drop a table, database, user, view, dictionary, etc
+
+    ```
+        -- create database
+        CREATE DATABASE SQL_EXAMPLES;
+
+        -- create table
+        CREATE TABLE SQL_EXAMPLES.table1
+        (Column1 String)
+        ENGINE = Log;
+
+        -- insert elements
+        insert into SQL_EXAMPLES.table1 VALUES('a'), ('b');
+
+        -- show the contents
+        select * from SQL_EXAMPLES.table1;
+
+        -- Select the databas
+        USE SQL_EXAMPLES;
+
+        -- list all the tables
+        show tables;
+
+        -- display contents
+        select * from table1;
+
+        -- Clear the contents of the table, https://clickhouse.com/docs/en/sql-reference/statements/truncate
+        TRUNCATE TABLE SQL_EXAMPLES.table1;
+
+    -- DQL
+    select * from system.functions limit 10;
+
+    -- Distinct, https://clickhouse.com/docs/en/sql-reference/statements/select/distinct
+    -- distinct clause is executed before order by clause
+    select distinct name from system.functions limit 100;
+
+    select distinct name from system.functions order by name;
+
+    select name from system.functions where name = 'sum';
+
+    SELECT COUNT(name), is_aggregate from system.functions where origin='System' group by is_aggregate;
+
+
+    ```
+- Further readings/watching
+  - Clickhouse, https://www.youtube.com/watch?v=b5E-8YkutJY
+  - Column vs Row Oriented Databases Explained, https://www.youtube.com/watch?v=Vw1fCeD06YI
+  - Row vs columnar, https://www.youtube.com/watch?v=uMkVi4SDLbM
+  - SQL commands, https://www.geeksforgeeks.org/sql-ddl-dql-dml-dcl-tcl-commands/
+
+- **DDL, dictionary**

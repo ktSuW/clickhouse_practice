@@ -1,3 +1,4 @@
+SELECT * from system.functions where name = 'sum'
 
 -- Create a new database
 CREATE DATABASE IF NOT EXISTS helloworld
