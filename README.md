@@ -529,9 +529,8 @@
 
 
 <details>
-  <summary> Study Notes</summary>
+  <summary> Study Notes - 9 - 12 May </summary>
 
-# 9 - 11 May 
 
 ## Wed 7 May 
 
@@ -584,7 +583,9 @@
     - --format
     - --secure vis SSL/TLS
 
-# Fri 10 May 24
+-------
+
+## Fri 10 May 24
 
 - Download DBeaver,https://dbeaver.io/download/
 - `sudo dpkg -i dbeaver-ce.deb` : 
@@ -628,9 +629,10 @@
         - `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --multiline`
     - Bulk insert
     - MergeTree Engine
+
 ---
 
-# Sat 11 May 24 
+## Sat 11 May 24 
 
 - `select * from system.functions where name='sum'`
 - Clickhouse SQL
@@ -694,3 +696,7 @@
   - SQL commands, https://www.geeksforgeeks.org/sql-ddl-dql-dml-dcl-tcl-commands/
 
 - **DDL, dictionary**
+
+## Sun 12 May 24 
+
+- 
