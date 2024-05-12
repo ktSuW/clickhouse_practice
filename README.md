@@ -511,6 +511,7 @@
         - the query is NOT RESOURCE INTENSIVE, it is not expensive to run the query over and over again.
         - NOTE : If your use case does not fit these above limited scenarios, consider defining a materialized view
 
+
 ## SQL and other fundamentals concepts for ClickHouse
 
 - Cardinality
@@ -524,9 +525,31 @@
 
 </details>
 
-### Other Useful resources
-- SQL tutorial, http://www.sql-tutorial.com/
 
+<details>
+    <summary> Clickhouse SQL Commands in a nutshell </summary>
+
+- Clickhouse SQL Commands snapshot
+ - ![SQL Commands](./img/clickhouse_sql_commands.png)
+    - **Data Definition Language (DDL)**
+        - CREATE 
+          - DATABASE
+          - TABLE
+          - VIEW
+          - DICTIONARY
+          - FUNCTION
+          - USER
+          - ROLE
+          - ROW POLICY 
+          - QUOTA
+          - SETTINGS PROFILE
+          - NAMED
+          - COLLECTION 
+    - Data Query Lanugage (DQL)
+    - Data Manipulation language (DML)
+    - Data Control language (DCL)
+
+</details>
 
 <details>
   <summary> Study Notes - 9 - 12 May </summary>
@@ -699,4 +722,38 @@
 
 ## Sun 12 May 24 
 
-- 
+- Clickhouse SQL Commands snapshot
+ - ![SQL Commands](./img/clickhouse_sql_commands.png)
+
+- Mutations via ALTER statement
+ - Update and delete for ONLY for MergeTree engine table
+    - Update and delete are also called mutations in clickhouse
+    - Costly operations
+    - lightweight delete
+
+    ```
+        -- create table2
+        CREATE TABLE SQL_EXAMPLES.table2
+        (
+            `col1` String,
+            `col2` String
+        )
+        ENGINE = MergeTree
+        ORDER BY col1
+
+        -- insert into table2
+        insert into SQL_EXAMPLES.table2 (col1, col2) values ('West lake', 'HangZhou'), ('Linyin Temple','HangZhou');
+
+        -- Check 
+        SELECT * FROM SQL_EXAMPLES.table2;
+
+        -- Update
+        ALTER TABLE SQL_EXAMPLES.table2 UPDATE col1 = 'Wuzhen Water Town' where col1 = 'West lake';
+
+        -- Delete
+        alter table SQL_EXAMPLES.table2 delete where col1='West lake'; 
+
+        -- Lightweight Delete
+        delete from SQL_EXAMPLES.table2 where col2 = 'HangZhou West Lake';
+
+    ```
