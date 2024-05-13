@@ -757,3 +757,37 @@
         delete from SQL_EXAMPLES.table2 where col2 = 'HangZhou West Lake';
 
     ```
+---
+
+<details>
+  <summary>Mon 13 - 19 May 24</summary>
+
+## Mon 13 May 24 
+
+- DDL - ALTER Columns
+    - ADD
+    - DROP 
+    - RENAME
+    - CLEAR
+- Index manipulation is supported for MergeTree engine
+- `ALTER TABLE SQL_EXAMPLES.table2 ADD COLUMN col3 Nullable(String)`
+- `alter table SQL_EXAMPLES.table2 rename column col3 to Country;`
+- `alter table SQL_EXAMPLES.table2 clear column Country;`
+- `alter TABLE SQL_EXAMPLES.table2 drop column Country;`
+- `rename table SQL_EXAMPLES.table2 to SQL_EXAMPLES.travel;`
+- `use SQL_EXAMPLES;`
+- [Use](https://clickhouse.com/docs/en/sql-reference/statements/use)
+    - Lets you set the current database for the session. The current database is used for searching for tables if the database is not explicitly defined in the query with a dot before the table name. This query can’t be made when using the HTTP protocol, since there is no concept of a session.
+
+- Rename database in clickhouse
+    - Cannot rename database like rename database.
+    - Create a database and migrate the tables into new database
+    - `create database travelling;`
+    - For each table in the old database, you need to create a corresponding table in the new db, and copy the data over.
+    - `rename table olddb.table_name to newdb.table_name;`
+    - `drop database olddb;`
+
+- VIEWS
+ - Normal view
+ - Parameterized view
+ - Materialized view 
