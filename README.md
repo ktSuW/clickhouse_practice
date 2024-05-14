@@ -757,6 +757,8 @@
         delete from SQL_EXAMPLES.table2 where col2 = 'HangZhou West Lake';
 
     ```
+</details>
+
 ---
 
 <details>
@@ -787,7 +789,132 @@
     - `rename table olddb.table_name to newdb.table_name;`
     - `drop database olddb;`
 
+- ZooKeeper
+    - https://bikas-katwal.medium.com/zookeeper-introduction-designing-a-distributed-system-using-zookeeper-and-java-7f1b108e236e
+
+- ClickHouse Keeper
+    - All about ZooKeeper (and ClickHouse Keeper Too) | ClickHouse Webinar, https://www.youtube.com/watch?v=wLHp_YcE4kA
+    - Horizontal scaling is a key to Clickhouse performance
+    - Shards - Red vs Blue
+        - Inside each shard, replicas
+        - Scale reads, writes, groups of machines - subset of datas
+        - Engine = ReplicatedMergeTree
+            - Partition by, onorder by 
+            - On Cluster, cluster, shard, replica
+        - distributed table
+    - On cluster command - failed one node!
+    - Two replicas merge overlapping parts
+        - MergeTree - 
+    - Node offline for maintenance; missed the memo
+    - Two replicas delete overlapping parts
+    - Zookeeper solves the distributed consistency problem
+    - Distributed ZooKeeper 
+    - Znode
+    - zoo.config
+        - autopurge
+    - ZooKeeper four letter word commands
+    - Zookeeper - Monitoring
+    - If clickhouse loses it sconnection to ZooKeeper, pending INSERTS or on cluster commands may fail with a session expired error
+    - ZXID overflow - too many writes or huge numbers of tiny inserts, huge number ofoo
+
+- ClickHouse Keeper
+    - It is a from -scratch reimplementation of ZooKeeper
+        - Mimics ZooKeeper API and admin commands
+        - Uses Raft protocol
+    - Run on a seperate hosts, including for logs
+    - Clickhouse keeper can run inside the Clickhouse itself
+    - ClickHouse
+        - Clickhouse keeper
+            - /etc/clickhouse-server/config.d
+                - keeper-config.xml (configuration file)
+            - /var/lib/clickhouse/coordination
+                - logs (Transaction logs)
+                - snapshots (Snapshots)
+        - On Cluster coammdnds
+        - System.zookeeper
+        - Zookeeper four letter commands
+        - zkCli.sh to navigate the directory structure
+        - ClickHouse Keeper, https://presentations.clickhouse.com/meetup54/keeper.pdf
+
+## Tues 13 May 24
+
 - VIEWS
  - Normal view
- - Parameterized view
+    - Normal views do not store any data. They just perform a read from another table on each access. In other words, a normal view is nothing more than a saved query. When reading from a view, this saved query is used as a subquery in the FROM clause.
+ - Parametrized view 
+    - Parametrized views are similar to normal views, but can be created with parameters which are not resolved immediately. These views can be used with table functions, which specify the name of the view as function name and the parameter values as its arguments.
  - Materialized view 
+ - https://altinity.com/blog/2020-5-12-sql-for-clickhouse-dba
+ - Revise this, - ClickHouse Keeper, https://presentations.clickhouse.com/meetup54/keeper.pdf
+ - `INSERT INTO travelling.asia (Prices) VALUES (45), (34), (56), (78);`
+ - `ALTER TABLE travelling.asia DELETE WHERE col1 = '' AND Destination_Name = '';`
+
+    ```
+        ALTER TABLE travelling.asia
+        UPDATE Prices = 45 WHERE Destination_Name = 'Wuzhen Water Town';
+
+        ALTER TABLE travelling.asia
+        UPDATE Prices = 56 WHERE Destination_Name = 'Yama';
+
+        ALTER TABLE travelling.asia
+        UPDATE Prices = 78 WHERE Destination_Name = 'HangZhou West Lake';
+
+        CREATE VIEW travelling.asia_prices_view AS
+            SELECT Prices * 2, 
+                    Destination_Name
+        FROM travelling.asia;
+
+        -- Normalised view, is not stored in the disk, data is read directly from the table
+        SELECT * FROM travelling.asia_view;
+
+        -- CREATE Parameterised view
+        CREATE VIEW travelling.asia_parameterized_view AS
+        SELECT col1, Destination_Name, Prices
+        FROM travelling.asia
+        WHERE Prices > 50;
+
+        CREATE VIEW travelling.view2 AS
+        SELECT col1, Destination_Name, Prices
+        FROM travelling.asia
+        WHERE Prices={Prices:UInt32};
+
+        SELECT * 
+        FROM travelling.view2
+        WHERE Prices > 50;
+
+        SELECT *
+        FROM travelling.asia_parameterized_view
+        WHERE Prices > 50;
+
+        --- MATERIALIZED VIEW, only insert is captured, not all the other manipulations.
+        CREATE MATERIALIZED VIEW travelling.view3_m
+        ENGINE = MergeTree()
+        ORDER BY (col1) AS
+        SELECT * 
+        FROM travelling.asia;
+
+        -- You can only see the data inserted only after the materialized view creation.
+        INSERT INTO travelling.asia (col1, Destination_Name, Prices) 
+        VALUES ('Tibet', 'Capital city', 100);
+    ```
+
+ </details>
+
+ ----
+
+ ## References:
+
+1. Clickhouse, https://clickhouse.com/docs/knowledgebase
+2. Altinity, https://kb.altinity.com/
+3. DoubleCloud, https://double.cloud/docs/en/managed-clickhouse/
+4. Clickhouse Keeper, https://presentations.clickhouse.com/meetup54/keeper.pdf
+
+### Materialized Views
+1. Harnessing Materialized Views and ClickHouse for High-Performance Analytics, https://inigo.io/blog/materialized_views_and_clickhouse#Materialized%20Views%20in%20ClickHouse
+2. Materialized Views in ClickHouse for Optimal Server Performance, https://chistadata.com/optimizing-clickhouse-server-performance-with-materialized-views/
+3. Performance impact of materialized views in ClickHouse®, https://double.cloud/blog/posts/2022/12/performance-impact-of-materialized-views-in-clickhouse/
+4. Getting started with ClickHouse? Here are 13 "Deadly Sins" and how to avoid them, https://clickhouse.com/blog/common-getting-started-issues-with-clickhouse
+5. How to speed up ClickHouse queries using materialized columns, https://posthog.com/blog/clickhouse-materialized-columns
+6. Optimizing Clickhouse: Materialized View, https://levelup.gitconnected.com/optimizing-clickhouse-materialized-view-e4ecbdffa08e
+7. Harnessing the Power of Materialized Views and ClickHouse for High-Performance Analytics at Inigo, https://clickhouse.com/blog/harnessing-the-power-of-materialized-views-and-clickhouse-for-high-performance-analytics-at-inigo
+8. Chaining Materialized Views in ClickHouse, https://clickhouse.com/blog/chaining-materialized-views
