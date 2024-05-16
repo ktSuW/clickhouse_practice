@@ -898,6 +898,15 @@
         VALUES ('Tibet', 'Capital city', 100);
     ```
 
+## Thurs 16 May 
+
+- Joining data - Joins
+- In general, put smaller table on the right handside
+
+- Pending items
+- Join types - Read this article, Join Types supported in ClickHouse
+- Read Choosing the Right Join Algorithm, https://clickhouse.com/blog/clickhouse-fully-supports-joins-how-to-choose-the-right-algorithm-part5
+
  </details>
 
  ----
@@ -918,3 +927,4 @@
 6. Optimizing Clickhouse: Materialized View, https://levelup.gitconnected.com/optimizing-clickhouse-materialized-view-e4ecbdffa08e
 7. Harnessing the Power of Materialized Views and ClickHouse for High-Performance Analytics at Inigo, https://clickhouse.com/blog/harnessing-the-power-of-materialized-views-and-clickhouse-for-high-performance-analytics-at-inigo
 8. Chaining Materialized Views in ClickHouse, https://clickhouse.com/blog/chaining-materialized-views
+- - `clickhouse-client --host 127.0.0.1 --port 9000 --user default --password yourpassword --multiline`
