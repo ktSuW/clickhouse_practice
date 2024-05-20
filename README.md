@@ -911,6 +911,43 @@
 
  ----
 
+<details>
+  <summary>Mon 20 - 26 May 24</summary>
+
+ ## Module 2 - ClickHouse Architecture
+
+
+
+
+### Terminologies
+
+- Data Stroage in MergeTree
+
+- Table Engine
+
+- Primary Key - the sort order of a table. It should be the value you filter the most. What am I filtering by the most
+
+- primary.idx - an in-memory index containing the values of the primary keys of the first row of each grandule
+
+  - Primary.idx file consists of a key per grandule
+
+  - Each key represents at most 8,192 rows or 10MB of data
+
+  - This sparse behaviour allows for the keys to be stored in memory.
+
+- Part - a folder of files consistsing of the column files and index file of a subset of a table's data
+
+- To avoid getting too many parts, the parts are merged in the background. Hence, MergeTree. After merging, unused parts are eventually deleted.
+
+- Granule - a logical breakdown of rows inside an uncompressed block; default is 8,192 rows
+
+- Low cardinality
+
+- Primary Index
+
+ </details>
+
+
  ## References:
 
 1. Clickhouse, https://clickhouse.com/docs/knowledgebase
