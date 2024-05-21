@@ -914,10 +914,9 @@
 <details>
   <summary>Mon 20 - 26 May 24</summary>
 
- ## Module 2 - ClickHouse Architecture
+# Mon 20 May 24
 
-
-
+## Module 2 - ClickHouse Architecture
 
 ### Terminologies
 
@@ -944,6 +943,33 @@
 - Low cardinality
 
 - Primary Index
+
+# Tue 21 May 24
+
+## Module 3.1 - Modelling Data
+- SQL commands - ch_module_3_1.sql
+
+- Terms/Concepts
+
+- Table engine, https://clickhouse.com/docs/en/engines/table-engines
+
+- Merge tree table, must have a primary key
+
+- LOW CARDINALITY
+
+- PRIMARY KEY
+
+- PARTITION 
+
+- Add column 
+
+- Array 
+
+- Interval, https://clickhouse.com/docs/en/sql-reference/data-types/special-data-types/interval
+
+- Enum - 
+
+
 
  </details>
 

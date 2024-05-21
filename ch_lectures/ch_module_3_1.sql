@@ -419,22 +419,4 @@ SELECT * FROM enum_demo;
 
 
 
--- Terms/Concepts
 
--- Table engine, https://clickhouse.com/docs/en/engines/table-engines
-
--- Merge tree table, must have a primary key
-
--- LOW CARDINALITY
-
--- PRIMARY KEY
-
--- PARTITION 
-
--- Add column 
-
--- Array 
-
--- Interval, https://clickhouse.com/docs/en/sql-reference/data-types/special-data-types/interval
-
--- Enum - 
