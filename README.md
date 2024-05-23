@@ -969,6 +969,17 @@
 
 - Enum - 
 
+## Wed 22 May 24 
+- ch_module_3.sql - completed
+- ch_module_4.sql - completed
+
+## Thurs 22 May 24 
+- Revised Enum
+- Case else end vs multiIf
+- ch_module_3_enum.sql added
+
+## Fri 23 May 24 
+
 
 
  </details>
