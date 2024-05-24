@@ -1,3 +1,25 @@
+-- 1378. Replace Employee ID With The Unique Identifier
+-- LEFT JOIN
+SELECT 
+    eu.unique_id, 
+    e.name 
+FROM 
+    employees e
+LEFT JOIN 
+    employeeUNI eu
+ON 
+    e.id=eu.id;
+-- RIGHT JOIN
+SELECT 
+    eu.unique_id,
+    e.name
+FROM 
+    employeeUNI eu
+RIGHT JOIN
+    Employees e
+ON 
+    e.id = eu.id;
+
 -- 595. Big Countries
 SELECT name, population, area 
 FROM world
