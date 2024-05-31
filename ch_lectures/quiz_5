@@ -1,0 +1,100 @@
+--========== Quiz ===========
+SELECT toYYYYMM(toDate('2024-04-15'))
+
+-- Finding the top 5 most common postcodes
+SELECT
+    topK(5)(postcode1) AS top_postcodes
+FROM
+    uk_price_paid;
+
+-- Find  the top 5 towns with the highest number of property sales
+SELECT
+    topK(5)(town) AS top_towns
+FROM
+    uk_price_paid;
+
+-- Find the top 5 streets with the highest average property price
+SELECT
+    street,
+    avg(price) AS avg_price
+FROM
+    uk_price_paid
+GROUP BY street
+ORDER BY avg_price DESC
+LIMIT 10;
+
+
+SELECT
+    topK(5)(street, avg(price)) AS top_streets_with_avg_price
+FROM uk_price_paid
+GROUP BY street;
+
+--
+SELECT topK(3)(county) AS top_counties
+FROM uk_price_paid
+WHERE is_new = 1;
+
+-- ======== 
+WITH town_price AS (
+    SELECT
+        town,
+        price
+    FROM
+        uk_price_paid
+),
+percentile_calculation AS (
+    SELECT
+        town,
+        round(quantile(0.90)(price), 2) AS price_90th_percentile
+    FROM
+        town_price
+    GROUP BY
+        town
+)
+SELECT
+    town,
+    formatReadableQuantity(price_90th_percentile)
+FROM
+    percentile_calculation
+ORDER BY
+    price_90th_percentile DESC
+LIMIT 10;
+
+-- ========= Find properties were sold for over 1 million in 2022
+SELECT
+    count(*) AS properties_sold_over_1_million
+FROM 
+    uk_price_paid
+WHERE
+    price > 1000000
+    AND date >= '2022-01-01'
+    AND date <= '2022-12-31';
+
+DESCRIBE TABLE uk_price_paid;
+-- unique towns
+SELECT
+    uniq(town) AS unique_towns
+FROM uk_price_paid;
+
+-- town had the highest number of properties sold (uppercase)
+SELECT
+    UPPER(town) AS town,
+    count(*) AS properties_sold
+FROM uk_price_paid
+GROUP BY town
+ORDER BY properties_sold DESC
+LIMIT 1;
+-- What is the sum of the price (without formatting) of all properties sold 
+-- in the counties of Avon, Essex, Devon, Kent, and Cornwall in the year 2020?
+SELECT
+    sum(price) AS total_price
+FROM
+    uk_price_paid
+WHERE
+    county IN ('Avon', 'Essex', 'Devon', 'Kent', 'Cornwall')
+    AND date >= '2020-01-01'
+    AND date <= '2020-12-31';
+
+
+
+
