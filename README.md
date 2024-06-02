@@ -980,7 +980,66 @@
 
 ## Fri 23 May 24 
 
+## Sharding and Replication
+- Replicas imporoves read query per second (QPS) and concurrency
+- Shards add throuhput and IOPS
+   - In sharding, query is performed on all hosts.
+- Different sharding and replication patterns
+  - All sharded
+  - All replicated
+  - Sharded and replicated
+ 
+- How replication works in Clickhouse
+  - ClickHouse keeper
+  - ReplicatedMergeTree
+  - Insert into Master - Master
+  - Replication is synchronous
+  - Clickhouse data is immutatble
+  - Clickhouse uses extra port 9009 for replication
+- What is replicated? ReplicatedMergeTree ONLY
+  - Replicated statements
+    - INSERT
+    - ALTER TABLE
+    - OPTIMIZE
+    - TRUNCATE
+  - Non-replicated statements
+    - CREATE table
+    - DROP table
+    - RENAME table
+    - DETACH table
+    - ATTACH table
+- Convert non-Replicated table to Replicated
+    - manual - create replicated table, and ATTACH partitions one-by-one from non-replicated
+    - convert_to_replicated flag in table data directory
+    - `SELECT * FROM system.zookeeper where path = '/`
+- distributed table
+   - Shared replicated table (partial data)
+   - Fully replicated table (all data)
+   - Define a cluster - remote_servers.xml
+     - remote_servers
+     - <remote_servers>
+    ```
+    SELECT
+      cluster,
+      groupArray(concat(host_name), ':', toString(port)) AS hosts
+    FROM system.clusters
+    GROUP BY cluster
+    ORDER BY cluster;
 
+    ```
+  - /etc/clickhouse-server/config.d/macros.xml
+  - MACROS cluster is needed for replicated replica names should be unique per host
+  - select * from system.macros
+  - ON CLUSTER => distributed DDL
+    - ON CLUSTER executes a command over a set of nodes
+    - CREATE TABLE IF NOT EXISTS `ontime_local` ON CLUSTER `{cluster}`...
+    - DROP TABLE IF EXISTS `ontime_local` ON CLUSTER `{cluster}` ...
+    - ALTER TABLE `ontime_local` ON CLUSTER `{cluster}`
+
+- Distributed INSERT - how it works
+```
+select * from system.distribution_queue
+```
 
  </details>
 
