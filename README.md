@@ -1041,6 +1041,111 @@
 select * from system.distribution_queue
 ```
 
+- **Why do we need scaling?**
+  - MergeTree - only one server, running a single node. The followings are missing:
+    - Data integrity
+    - Failover - a node can go down
+    - Performance
+- How do we scale?
+    - Sharding : provides scalability. Database can be split into multiple smaller tables (called shards). A table has one shard by default.
+    - If the table is too big to fit on a single server, split it into shards
+        - Do not shared your tables unless it is really necessary.
+
+- **Reliability**
+  - Replication provides redundancy
+  - Each shard table consists of one or more replicas
+  - Replicas are placed on different servers
+  - If one server fails, the data is still available
+ 
+- Cluster Terminology
+    - Server hosts : hardware (cloud or onprem) that makes up your machine
+      - more core CPUs improves data ingestion speeds
+      - Faster disks improve query performance
+      - More memory improves data with high cardinality
+    - Database host - it is a running instance of ClickHouse
+      - Could run multiple database host (clickhouse server) on the same server
+    - Cluster : a logical collection of one or more shards (which consists of replicas)
+
+- Scaling = sharding + replication in clickhouse
+    - Sharding - define your shards in the config file
+    - Replication
+        - Needs different table engine - ReplicatedMergeTree or SharedMergeTree(for cloud users)
+        - Requires clickhouse keeper
+            - Trackers the state of each replicas, can keep in sync
+            - Keeper - a separate cluser of processes
+### Steps to Create
+1. Configure a cluster
+   - Clusters - consists of one or more shards
+   - Shards - consists of one or more replicas
+     
+   ```
+   <remote_server>
+     <cluser1>
+       <shard>
+       </shard>
+     </cluster1>
+   </remote_server>
+   ```
+2. Configure ZooKeeper/ClickHouse Keeper
+   - ClickHouse Keeper is part of the clickhouse server
+   - Run in its own process or in the clickhouse server process
+   - Raft consensus algorithm used by clickhouse keeper
+  
+   ```
+   <keeper_server>
+     <tcp_port> </tcp_port>
+     <server_id>1</server_id>
+     <raft_configuration>
+     </raft_configuration?
+   </keeper_server>
+   ```
+
+3. Tell the nodes where ClickHouse Keeper is running
+
+    ```
+    <zookeeper>
+      <node>
+      </node>
+    </zookeeper>
+    ```
+4. Create a database on each host
+   - Create the same db on each host
+     - host 1 => CREATE DATABASE my_db
+     - host 2 => CREATE DATABASE my_db
+   - Or use a single command with ON CLUSTER
+     - CREATE DATABASE my_db ON CLUSTER cluster1
+    
+5. Create a local table on each host for each replica or use ON CLUSTER
+
+   ```
+   CREATE TABLE my_db.my_table ON CLUSTER cluster1 {
+       user_id UInt32,
+       messsage String,
+       timestamp DateTime,
+       metric Float32
+   }
+   ENGINE = ReplicatedMergeTree {
+      `/clickhouse/tables/my_table/{shard}`,
+     `{replica}`
+   }
+   ORDER BY (user_id, timestamp);
+   ```
+
+   - Macros config.xml 
+  
+    ```
+    <macros>
+        <shard>01</shard>
+        <replica>01</replica>
+    </macros>
+    ```
+6. Create a Distributed table
+  - Only need to be created on one of the hosts and it points to all the local tables
+    ```
+    CREATE TABLE testing_distributed_table AS my_table.mytable
+    ENGINE = Distributed (cluster1, my_db, mytable)
+    ```
+7. 
  </details>
 
 
